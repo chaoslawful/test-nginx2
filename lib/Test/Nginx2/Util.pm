@@ -1,9 +1,9 @@
-package Test::Nginx::Util;
+package Test::Nginx2::Util;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.19';
+our $VERSION = '0.19.1';
 
 use base 'Exporter';
 

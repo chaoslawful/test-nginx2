@@ -2,6 +2,7 @@
 abstract: 'Testing modules for Nginx C module development'
 author:
   - 'agentzh (章亦春) C<< <agentzh@gmail.com> >>'
+  - 'Jiale Zhi C<< <vipcalio@gmail.com> >>'
 build_requires:
   ExtUtils::MakeMaker: 6.55
 configure_requires:
@@ -38,5 +39,5 @@ requires:
   perl: 5.6.1
 resources:
   license: http://opensource.org/licenses/bsd-license.php
-  repository: http://github.com/agentzh/test-nginx
-version: 0.19
+  repository: http://github.com/chaoslawful/test-nginx2
+version: 0.19.1

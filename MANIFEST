@@ -1,7 +1,7 @@
-lib/Test/Nginx.pm
-lib/Test/Nginx/LWP.pm
-lib/Test/Nginx/Socket.pm
-lib/Test/Nginx/Util.pm
+lib/Test/Nginx2.pm
+lib/Test/Nginx2/LWP.pm
+lib/Test/Nginx2/Socket.pm
+lib/Test/Nginx2/Util.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP

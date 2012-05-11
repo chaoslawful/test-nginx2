@@ -1,9 +1,9 @@
-package Test::Nginx;
+package Test::Nginx2;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.19';
+our $VERSION = '0.19.1';
 
 __END__
 
@@ -11,35 +11,15 @@ __END__
 
 =head1 NAME
 
-Test::Nginx - Testing modules for Nginx C module development
+Test::Nginx2 - Testing modules for Nginx C module development
 
 =head1 DESCRIPTION
 
-This distribution provides two testing modules for Nginx C module development:
-
-=over
-
-=item *
-
-L<Test::Nginx::Socket> (This is recommended.)
-
-=item *
-
-L<Test::Nginx::LWP> (This is obsolete.)
-
-=back
+This distribution provides L<Test::Nginx2::Socket> for Nginx C module development:
 
 All of them are based on L<Test::Base>.
 
-Usually, L<Test::Nginx::Socket> is preferred because it works on a much lower
-level and not that fault tolerant like L<Test::Nginx::LWP>.
-
-Also, a lot of connection hang issues (like wrong C<< r->main->count >> value in nginx
-0.8.x) can only be captured by L<Test::Nginx::Socket> because Perl's L<LWP::UserAgent> client
-will close the connection itself which will conceal such issues from
-the testers.
-
-Test::Nginx automatically starts an nginx instance (from the C<PATH> env)
+Test::Nginx2 automatically starts an nginx instance (from the C<PATH> env)
 rooted at t/servroot/ and the default config template makes this nginx
 instance listen on the port C<1984> by default. One can specify a different
 port number by setting his port number to the C<TEST_NGINX_PORT> environment,
@@ -54,15 +34,15 @@ makes this small TCP proxy split the TCP packets into bytes and introduce 1 ms l
 
 There's usually various TCP chains that we can put etcproxy into, for example
 
-=head3 Test::Nginx <=> nginx
+=head3 Test::Nginx2 <=> nginx
 
   $ ./etcproxy 1234 1984
 
 Here we tell etcproxy to listen on port 1234 and to delegate all the
-TCP traffic to the port 1984, the default port that Test::Nginx makes
+TCP traffic to the port 1984, the default port that Test::Nginx2 makes
 nginx listen to.
 
-And then we tell Test::Nginx to test against the port 1234, where
+And then we tell Test::Nginx2 to test against the port 1234, where
 etcproxy listens on, rather than the port 1984 that nginx directly
 listens on:
 
@@ -70,7 +50,7 @@ listens on:
 
 Then the TCP chain now looks like this:
 
-  Test::Nginx <=> etcproxy (1234) <=> nginx (1984)
+  Test::Nginx2 <=> etcproxy (1234) <=> nginx (1984)
 
 So etcproxy can effectively emulate extreme network conditions and
 exercise "unusual" code paths in your nginx server by your tests.
@@ -92,7 +72,7 @@ and then we another etcproxy instance to listen on port 11984 like this
 Then we tell our t/foo.t test script to connect to 11984 rather than 11211:
 
   # foo.t
-  use Test::Nginx::Socket;
+  use Test::Nginx2::Socket;
   repeat_each(1);
   plan tests => 2 * repeat_each() * blocks();
   $ENV{TEST_NGINX_MEMCACHED_PORT} ||= 11211;  # make this env take a default value
@@ -112,7 +92,7 @@ Then we tell our t/foo.t test script to connect to 11984 rather than 11211:
       GET /foo
   --- response_body_like: STORED
 
-The Test::Nginx library will automatically expand the special macro
+The Test::Nginx2 library will automatically expand the special macro
 C<$TEST_NGINX_MEMCACHED_PORT> to the environment with the same name.
 You can define your own C<$TEST_NGINX_BLAH_BLAH_PORT> macros as long as
 its prefix is C<TEST_NGINX_> and all in upper case letters.
@@ -123,13 +103,13 @@ And now we can run your test script against the etcproxy port 11984:
 
 Then the TCP chains look like this:
 
-   Test::Nginx <=> nginx (1984) <=> etcproxy (11984) <=> memcached (11211)
+   Test::Nginx2 <=> nginx (1984) <=> etcproxy (11984) <=> memcached (11211)
 
 If C<TEST_NGINX_MEMCACHED_PORT> is not set, then it will take the default
 value 11211, which is what we want when there's no etcproxy
 configured:
 
-   Test::Nginx <=> nginx (1984) <=> memcached (11211)
+   Test::Nginx2 <=> nginx (1984) <=> memcached (11211)
 
 This approach also works for proxied mysql and postgres traffic.
 Please see the live test suite of ngx_drizzle and ngx_postgres for
@@ -139,7 +119,7 @@ Usually we set both C<TEST_NGINX_CLIENT_PORT> and
 C<TEST_NGINX_MEMCACHED_PORT> (and etc) at the same time, effectively
 yielding the following chain:
 
-   Test::Nginx <=> etcproxy (1234) <=> nginx (1984) <=> etcproxy (11984) <=> memcached (11211)
+   Test::Nginx2 <=> etcproxy (1234) <=> nginx (1984) <=> etcproxy (11984) <=> memcached (11211)
 
 as long as you run two separate etcproxy instances in two separate terminals.
 
@@ -150,7 +130,7 @@ stdout/stderr.
 
 =head2 valgrind integration
 
-Test::Nginx has integrated support for valgrind (L<http://valgrind.org>) even though by
+Test::Nginx2 has integrated support for valgrind (L<http://valgrind.org>) even though by
 default it does not bother running it with the tests because valgrind
 will significantly slow down the test sutie.
 
@@ -166,7 +146,7 @@ in
 
 L<https://github.com/chaoslawful/drizzle-nginx-module/blob/master/valgrind.suppress>
 
-This is the suppression file for ngx_drizzle. Test::Nginx will
+This is the suppression file for ngx_drizzle. Test::Nginx2 will
 automatically use it to start nginx with valgrind memcheck if this
 file does exist at the expected location.
 
@@ -191,11 +171,11 @@ invalid memory reads/writes as well as certain double-free errors. We
 did find a lot more memory issues in many of our modules when we first
 introduced the no-pool patch in practice ;)
 
-There's also more advanced features in Test::Nginx that have never
+There's also more advanced features in Test::Nginx2 that have never
 documented. I'd like to write more about them in the near future ;)
 
 
-=head1 Nginx C modules that use Test::Nginx to drive their test suites
+=head1 Nginx C modules that use Test::Nginx2 to drive their test suites
 
 =over
 
@@ -281,22 +261,21 @@ This module has a Git repository on Github, which has access for all.
 
 If you want a commit bit, feel free to drop me a line.
 
-=head1 DEBIAN PACKAGES
-
-António P. P. Almeida is maintaining a Debian package for this module
-in his Debian repository: http://debian.perusio.net
-
 =head1 AUTHORS
 
 agentzh (章亦春) C<< <agentzh@gmail.com> >>
 
 Antoine BONAVITA C<< <antoine.bonavita@gmail.com> >>
 
+Jiale Zhi C<< <vipcalio@gmail.com> >>
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright (c) 2009-2012, agentzh C<< <agentzh@gmail.com> >>.
 
 Copyright (c) 2011-2012, Antoine Bonavita C<< <antoine.bonavita@gmail.com> >>.
+
+Copyright (c) 2012, Jiale Zhi << <vipcalio@gmail.com> >>.
 
 This module is licensed under the terms of the BSD license.
 
@@ -322,5 +301,5 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 =head1 SEE ALSO
 
-L<Test::Nginx::LWP>, L<Test::Nginx::Socket>, L<Test::Base>.
+L<Test::Nginx::LWP>, L<Test::Nginx2::Socket>, L<Test::Base>.
 

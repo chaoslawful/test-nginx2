@@ -2,10 +2,10 @@ use strict;
 use lib '.';
 use inc::Module::Install;
 
-name            ('Test-Nginx');
+name            ('Test-Nginx2');
 license         ('bsd');
 perl_version    ('5.006001');
-repository      ('http://github.com/agentzh/test-nginx');
+repository      ('http://github.com/chaoslawful/test-nginx2');
 all_from        ('lib/Test/Nginx.pm');
 
 requires        ('Test::Base');

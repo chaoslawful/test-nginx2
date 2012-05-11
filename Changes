@@ -1,3 +1,7 @@
+Changes for Test::Nginx2
+0.19.1 - 2012-05-11
+* feature: count test-cases by blocks instead of concrete minor tests, no more plan number confusions.
+
 Changes for Test::Nginx
 
 0.19 - 2012-04-29

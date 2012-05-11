@@ -1,11 +1,11 @@
-package Test::Nginx::Socket;
+package Test::Nginx2::Socket;
 
 use lib 'lib';
 use lib 'inc';
 
 use Test::Base -Base;
 
-our $VERSION = '0.19';
+our $VERSION = '0.19.1';
 
 use Encode;
 use Data::Dumper;
@@ -16,7 +16,7 @@ use IO::Select ();
 
 our $ServerAddr = 'localhost';
 
-use Test::Nginx::Util qw(
+use Test::Nginx2::Util qw(
   bail_out
   setup_server_root
   write_config_file
@@ -1199,13 +1199,14 @@ __END__
 
 =head1 NAME
 
-Test::Nginx::Socket - Socket-backed test scaffold for the Nginx C modules
+Test::Nginx2::Socket - Socket-backed test scaffold for the Nginx C modules
 
 =head1 SYNOPSIS
 
-    use Test::Nginx::Socket;
+    use Test::Nginx2::Socket;
 
-    plan tests => $Test::Nginx::Socket::RepeatEach * 2 * blocks();
+	repeat_each(2);
+    plan tests => 1 * blocks(); # same as: scalar(blocks())
 
     run_tests();
 
@@ -1363,8 +1364,8 @@ web server and even use a different version of HTTP. This is possible:
     --- request
     GET /foo HTTP/1.0
 
-Please note that specifying HTTP/1.0 will not prevent Test::Nginx from
-sending the C<Host> header. Actually Test::Nginx always sends 2 headers:
+Please note that specifying HTTP/1.0 will not prevent Test::Nginx2 from
+sending the C<Host> header. Actually Test::Nginx2 always sends 2 headers:
 C<Host> (with value localhost) and C<Connection> (with value Close for
 simple requests and keep-alive for all but the last pipelined_requests).
 
@@ -1374,7 +1375,7 @@ You can also add a content to your request:
     POST /foo
     Hello world
 
-Test::Nginx will automatically calculate the content length and add the
+Test::Nginx2 will automatically calculate the content length and add the
 corresponding header for you.
 
 This being said, as soon as you want to POST real data, you will be interested
@@ -1406,12 +1407,12 @@ your request into network packets:
     --- request eval
     [["POST /users\nna", "me=foo"]]
 
-Here, Test::Nginx will first send the request line, the headers it
+Here, Test::Nginx2 will first send the request line, the headers it
 automatically added for you and the first two letters of the body ("na" in
 our example) in ONE network packet. Then, it will send the next packet (here
 it's "me=foo"). When we talk about packets here, this is nto exactly correct
 as there is no way to guarantee the behavior of the TCP/IP stack. What
-Test::Nginx can guarantee is that this will result in two calls to
+Test::Nginx2 can guarantee is that this will result in two calls to
 C<syswrite>.
 
 A good way to make I<almost> sure the two calls result in two packets is to
@@ -1708,11 +1709,11 @@ starts. The following environment variables are supported by this module:
 
 =head2 TEST_NGINX_VERBOSE
 
-Controls whether to output verbose debugging messages in Test::Nginx. Default to empty.
+Controls whether to output verbose debugging messages in Test::Nginx2. Default to empty.
 
 =head2 TEST_NGINX_USE_HUP
 
-When set to 1, Test::Nginx will try to send HUP signal to the
+When set to 1, Test::Nginx2 will try to send HUP signal to the
 nginx master process to reload the config file between
 successive C<repeast_each> tests. When this envirnoment is set
 to 1, it will also enfornce the "master_process on" config line
@@ -1731,7 +1732,7 @@ and it will effectively disable the write buffering in nginx's ngx_http_write_mo
 
 =head2 TEST_NGINX_NO_NGINX_MANAGER
 
-Defaults to 0. If set to 1, Test::Nginx module will not manage
+Defaults to 0. If set to 1, Test::Nginx2 module will not manage
 (configure/start/stop) the C<nginx> process. Can be useful to run tests
 against an already configured (and running) nginx server.
 
@@ -1742,7 +1743,7 @@ they appear in the test file (and not in random order).
 
 =head2 TEST_NGINX_USE_VALGRIND
 
-If set, Test::Nginx will start nginx with valgrind with the the value of this environment as the options.
+If set, Test::Nginx2 will start nginx with valgrind with the the value of this environment as the options.
 
 Nginx is actually started with
 C<valgrind -q $TEST_NGINX_USE_VALGRIND --gen-suppressions=all --suppressions=valgrind.suppress>,
@@ -1769,16 +1770,16 @@ Value of the C<master_process> configuration directive. Defaults to C<off>.
 
 =head2 TEST_NGINX_SERVER_PORT
 
-Value of the port the server started by Test::Nginx will listen to. If not
+Value of the port the server started by Test::Nginx2 will listen to. If not
 set, C<TEST_NGINX_PORT> is used. If C<TEST_NGINX_PORT> is not set,
 then C<1984> is used. See below for typical use.
 
 =head2 TEST_NGINX_CLIENT_PORT
 
-Value of the port Test::Nginx will diirect requests to. If not
+Value of the port Test::Nginx2 will diirect requests to. If not
 set, C<TEST_NGINX_PORT> is used. If C<TEST_NGINX_PORT> is not set,
 then C<1984> is used. A typical use of this feature is to test extreme
-network conditions by adding a "proxy" between Test::Nginx and nginx
+network conditions by adding a "proxy" between Test::Nginx2 and nginx
 itself. This is described in the C<etcproxy integration> section of this
 module README.
 
@@ -1789,12 +1790,12 @@ C<TEST_NGINX_SERVER_PORT>.
 
 =head2 TEST_NGINX_SLEEP
 
-How much time (in seconds) should Test::Nginx sleep between two calls to C<syswrite> when
+How much time (in seconds) should Test::Nginx2 sleep between two calls to C<syswrite> when
 sending request data. Defaults to 0.
 
 =head2 TEST_NGINX_FORCE_RESTART_ON_TEST
 
-Defaults to 1. If set to 0, Test::Nginx will not restart the nginx
+Defaults to 1. If set to 0, Test::Nginx2 will not restart the nginx
 server when the config does not change between two tests.
 
 =head2 TEST_NGINX_SERVROOT
@@ -1826,88 +1827,15 @@ is very useful when debugging. By default, each test triggers a start/stop
 cycle for C<nginx>. All logs are removed before each restart, so you can
 only see the logs for the last test run (which you usually do not control
 except if you set C<TEST_NGINX_NO_SHUFFLE=1>). With this, you accumulate
-all logs into a single file that is never cleaned up by Test::Nginx.
-
-=head1 Samples
-
-You'll find live samples in the following Nginx 3rd-party modules:
-
-=over
-
-=item ngx_echo
-
-L<http://github.com/agentzh/echo-nginx-module>
-
-=item ngx_chunkin
-
-L<http://wiki.nginx.org/NginxHttpChunkinModule>
-
-=item ngx_memc
-
-L<http://wiki.nginx.org/NginxHttpMemcModule>
-
-=item ngx_drizzle
-
-L<http://github.com/chaoslawful/drizzle-nginx-module>
-
-=item ngx_rds_json
-
-L<http://github.com/agentzh/rds-json-nginx-module>
-
-=item ngx_xss
-
-L<http://github.com/agentzh/xss-nginx-module>
-
-=item ngx_srcache
-
-L<http://github.com/agentzh/srcache-nginx-module>
-
-=item ngx_lua
-
-L<http://github.com/chaoslawful/lua-nginx-module>
-
-=item ngx_set_misc
-
-L<http://github.com/agentzh/set-misc-nginx-module>
-
-=item ngx_array_var
-
-L<http://github.com/agentzh/array-var-nginx-module>
-
-=item ngx_form_input
-
-L<http://github.com/calio/form-input-nginx-module>
-
-=item ngx_iconv
-
-L<http://github.com/calio/iconv-nginx-module>
-
-=item ngx_set_cconv
-
-L<http://github.com/liseen/set-cconv-nginx-module>
-
-=item ngx_postgres
-
-L<http://github.com/FRiCKLE/ngx_postgres>
-
-=item ngx_coolkit
-
-L<http://github.com/FRiCKLE/ngx_coolkit>
-
-=back
+all logs into a single file that is never cleaned up by Test::Nginx2.
 
 =head1 SOURCE REPOSITORY
 
 This module has a Git repository on Github, which has access for all.
 
-    http://github.com/agentzh/test-nginx
+    http://github.com/chaoslawful/test-nginx2
 
 If you want a commit bit, feel free to drop me a line.
-
-=head1 DEBIAN PACKAGES
-
-António P. P. Almeida is maintaining a Debian package for this module
-in his Debian repository: http://debian.perusio.net
 
 =head1 AUTHORS
 
@@ -1915,11 +1843,15 @@ agentzh (章亦春) C<< <agentzh@gmail.com> >>
 
 Antoine BONAVITA C<< <antoine.bonavita@gmail.com> >>
 
+Jiale Zhi C<< <vipcalio@gmail.com> >>
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright (c) 2009-2012, agentzh C<< <agentzh@gmail.com> >>.
 
 Copyright (c) 2011-2012, Antoine BONAVITA C<< <antoine.bonavita@gmail.com> >>.
+
+Copyright (c) 2012, Jiale Zhi C<< <vipcalio@gmail.com> >>.
 
 This module is licensed under the terms of the BSD license.
 
